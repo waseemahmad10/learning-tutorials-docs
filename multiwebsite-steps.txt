@@ -1,0 +1,284 @@
+Before doing this practice, you need to make sure that, you have two domains pointing to same the path on your hosting.
+
+In my localhost, I have two domains named
+1. website.vn
+2. website.us
+
+Both these websites pointing to same the path /var/www/html/magento/2.2.x/2.2.5
+
+Let's do this practice, you need to follow steps by step:
+
+Step 1: Add a new Root Category
+- Log into the backend and navigate to the Catalog → Catalog → Categories → Add Root Category
+- Enter the Category Name
+- Press the button Save.
+
+Step 2: Create a new website
+- Go to the Stores → Settings → All Stores → Create Website
+- Enter the Web Site Information
+- Press the button Save Web Site.
+
+Step 3: Create a new Store for the second website
+- Go to the Stores → Settings → All Stores → Create Store
+- Enter the store information
+- Press the button Save Store.
+
+Step 4: Create Default Store View for the second website
+- Go to the Stores → Settings → All Stores → Create Store View
+- Enter the Store view information
+- Press the button Save Store View.
+
+Step 5: Setup the Base URL for the new website
+- Go to the Stores → Settings → Configuration → General → Web
+- On the top-left, in the box to view and manage the Store view, select the new website you just created. Go to the Base URLs and Base URLs (Secure) section.
+- Modify to the new domain.
+- Click the Save Config button.
+
+Step 6: Set values for the MAGE_RUN_TYPE and MAGE_RUN_CODE
+
+Open the index.php file under application root directory
+
+$bootstrap = \Magento\Framework\App\Bootstrap::create(BP, $_SERVER);
+$storeUri=array('de','fr','en');
+$urCodes=array_filter(explode('/',$_SERVER['REQUEST_URI']));
+$currentUri=current($urCodes);
+$currentUrlIndex=$_SERVER['HTTP_HOST'];
+if(!empty($currentUri)&&in_array($currentUri,$storeUri)){
+	$currentUrlIndex=$_SERVER['HTTP_HOST'].'/'.$currentUri;
+}
+switch($currentUrlIndex) {
+    case 'xxxx.com/de':
+        $mageRunCode = 'german_website';
+        $mageRunType = 'website';
+    break;
+    case 'xxxxx.com/fr':
+        $mageRunCode = 'french_website';
+        $mageRunType = 'website';
+    break;
+    default:
+    	$mageRunCode = 'base';
+        $mageRunType = 'website';
+    break;
+}
+$params = $_SERVER;
+$params[\Magento\Store\Model\StoreManager::PARAM_RUN_CODE] = $mageRunCode;
+$params[\Magento\Store\Model\StoreManager::PARAM_RUN_TYPE] = $mageRunType;
+$bootstrap = \Magento\Framework\App\Bootstrap::create(BP, $params);
+
+/** @var \Magento\Framework\App\Http $app */
+$app = $bootstrap->createApplication('Magento\Framework\App\Http');
+$bootstrap->run($app);
+
+Step 7: Test and See the results
+Run the comment line following:
+- php bin/magento cache:flush
+- Go the domains website.us and website.vn
+
+For now, I will add some products to the website.us
+Yeah, it works perfectly.
+
+For now, I will change the theme for the website.us
+
+There is no new website displaying there.
+You need to run the indexer command line now.
+yeah, it is showing now.
+
+I change the default theme to the Magento Blank.
+
+Goto Content>>Design>Select Theme
+
+
+
+
+
+Download Sample Data In Magento2
+
+Run Following command in terminal
+composer config repositories.0 composer https://repo.magento.com
+php bin/magento sampledata:deploy //to deploy sample data in magento2
+php bin/magento setup:upgrade //to upgrade modules and to run setup files
+php bin/magento setup:di:compile //to compile files
+php bin/magento indexer:reindex //index flat tables and product price
+php bin/magento setup:static-content:deploy // to regenerate static files
+Give Full permission to Var Folder 777.
+Load site in browser
+
+
+
+
+I went through all tables and came up with the following list of tables that should be truncated in order to clear test data:
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+Truncate order tables
+
+TRUNCATE TABLE `gift_message`;
+TRUNCATE TABLE `quote`;
+TRUNCATE TABLE `quote_address`;
+TRUNCATE TABLE `quote_address_item`;
+TRUNCATE TABLE `quote_id_mask`;
+TRUNCATE TABLE `quote_item`;
+TRUNCATE TABLE `quote_item_option`;
+TRUNCATE TABLE `quote_payment`;
+TRUNCATE TABLE `quote_shipping_rate`;
+TRUNCATE TABLE `reporting_orders`;
+TRUNCATE TABLE `sales_bestsellers_aggregated_daily`;
+TRUNCATE TABLE `sales_bestsellers_aggregated_monthly`;
+TRUNCATE TABLE `sales_bestsellers_aggregated_yearly`;
+TRUNCATE TABLE `sales_creditmemo`;
+TRUNCATE TABLE `sales_creditmemo_comment`;
+TRUNCATE TABLE `sales_creditmemo_grid`;
+TRUNCATE TABLE `sales_creditmemo_item`;
+TRUNCATE TABLE `sales_invoice`;
+TRUNCATE TABLE `sales_invoiced_aggregated`;
+TRUNCATE TABLE `sales_invoiced_aggregated_order`;
+TRUNCATE TABLE `sales_invoice_comment`;
+TRUNCATE TABLE `sales_invoice_grid`;
+TRUNCATE TABLE `sales_invoice_item`;
+TRUNCATE TABLE `sales_order`;
+TRUNCATE TABLE `sales_order_address`;
+TRUNCATE TABLE `sales_order_aggregated_created`;
+TRUNCATE TABLE `sales_order_aggregated_updated`;
+TRUNCATE TABLE `sales_order_grid`;
+TRUNCATE TABLE `sales_order_item`;
+TRUNCATE TABLE `sales_order_payment`;
+TRUNCATE TABLE `sales_order_status_history`;
+TRUNCATE TABLE `sales_order_tax`;
+TRUNCATE TABLE `sales_order_tax_item`;
+TRUNCATE TABLE `sales_payment_transaction`;
+TRUNCATE TABLE `sales_refunded_aggregated`;
+TRUNCATE TABLE `sales_refunded_aggregated_order`;
+TRUNCATE TABLE `sales_shipment`;
+TRUNCATE TABLE `sales_shipment_comment`;
+TRUNCATE TABLE `sales_shipment_grid`;
+TRUNCATE TABLE `sales_shipment_item`;
+TRUNCATE TABLE `sales_shipment_track`;
+TRUNCATE TABLE `sales_shipping_aggregated`;
+TRUNCATE TABLE `sales_shipping_aggregated_order`;
+TRUNCATE TABLE `tax_order_aggregated_created`;
+TRUNCATE TABLE `tax_order_aggregated_updated`;
+
+Truncate Customer tables
+
+TRUNCATE TABLE `customer_address_entity`;
+TRUNCATE TABLE `customer_address_entity_datetime`;
+TRUNCATE TABLE `customer_address_entity_decimal`;
+TRUNCATE TABLE `customer_address_entity_int`;
+TRUNCATE TABLE `customer_address_entity_text`;
+TRUNCATE TABLE `customer_address_entity_varchar`;
+TRUNCATE TABLE `customer_entity`;
+TRUNCATE TABLE `customer_entity_datetime`;
+TRUNCATE TABLE `customer_entity_decimal`;
+TRUNCATE TABLE `customer_entity_int`;
+TRUNCATE TABLE `customer_entity_text`;
+TRUNCATE TABLE `customer_entity_varchar`;
+TRUNCATE TABLE `customer_grid_flat`;
+TRUNCATE TABLE `customer_log`;
+TRUNCATE TABLE `customer_log`;
+TRUNCATE TABLE `customer_visitor`;
+TRUNCATE TABLE `persistent_session`;
+TRUNCATE TABLE `wishlist`;
+TRUNCATE TABLE `wishlist_item`;
+TRUNCATE TABLE `wishlist_item_option`;
+
+Truncate Review tables
+
+TRUNCATE TABLE `review`;
+TRUNCATE TABLE `review_detail`;
+TRUNCATE TABLE `review_entity_summary`;
+TRUNCATE TABLE `review_store`;
+
+Truncate Product tables
+
+TRUNCATE TABLE `cataloginventory_stock_item`;
+TRUNCATE TABLE `cataloginventory_stock_status`;
+TRUNCATE TABLE `cataloginventory_stock_status_idx`;
+TRUNCATE TABLE `cataloginventory_stock_status_tmp`;
+TRUNCATE TABLE `catalog_category_product`;
+TRUNCATE TABLE `catalog_category_product_index`;
+TRUNCATE TABLE `catalog_category_product_index_tmp`;
+TRUNCATE TABLE `catalog_compare_item`;
+TRUNCATE TABLE `catalog_product_bundle_option`;
+TRUNCATE TABLE `catalog_product_bundle_option_value`;
+TRUNCATE TABLE `catalog_product_bundle_price_index`;
+TRUNCATE TABLE `catalog_product_bundle_selection`;
+TRUNCATE TABLE `catalog_product_bundle_selection_price`;
+TRUNCATE TABLE `catalog_product_bundle_stock_index`;
+TRUNCATE TABLE `catalog_product_entity`;
+TRUNCATE TABLE `catalog_product_entity_datetime`;
+TRUNCATE TABLE `catalog_product_entity_decimal`;
+TRUNCATE TABLE `catalog_product_entity_gallery`;
+TRUNCATE TABLE `catalog_product_entity_int`;
+TRUNCATE TABLE `catalog_product_entity_media_gallery`;
+TRUNCATE TABLE `catalog_product_entity_media_gallery_value`;
+TRUNCATE TABLE `catalog_product_entity_media_gallery_value_to_entity`;
+TRUNCATE TABLE `catalog_product_entity_media_gallery_value_video`;
+TRUNCATE TABLE `catalog_product_entity_text`;
+TRUNCATE TABLE `catalog_product_entity_tier_price`;
+TRUNCATE TABLE `catalog_product_entity_varchar`;
+TRUNCATE TABLE `catalog_product_index_eav`;
+TRUNCATE TABLE `catalog_product_index_eav_decimal`;
+TRUNCATE TABLE `catalog_product_index_eav_decimal_idx`;
+TRUNCATE TABLE `catalog_product_index_eav_decimal_tmp`;
+TRUNCATE TABLE `catalog_product_index_eav_idx`;
+TRUNCATE TABLE `catalog_product_index_eav_tmp`;
+TRUNCATE TABLE `catalog_product_index_price`;
+TRUNCATE TABLE `catalog_product_index_price_bundle_idx`;
+TRUNCATE TABLE `catalog_product_index_price_bundle_opt_idx`;
+TRUNCATE TABLE `catalog_product_index_price_bundle_opt_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_bundle_sel_idx`;
+TRUNCATE TABLE `catalog_product_index_price_bundle_sel_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_bundle_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_cfg_opt_agr_idx`;
+TRUNCATE TABLE `catalog_product_index_price_cfg_opt_agr_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_cfg_opt_idx`;
+TRUNCATE TABLE `catalog_product_index_price_cfg_opt_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_downlod_idx`;
+TRUNCATE TABLE `catalog_product_index_price_downlod_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_final_idx`;
+TRUNCATE TABLE `catalog_product_index_price_final_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_idx`;
+TRUNCATE TABLE `catalog_product_index_price_opt_agr_idx`;
+TRUNCATE TABLE `catalog_product_index_price_opt_agr_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_opt_idx`;
+TRUNCATE TABLE `catalog_product_index_price_opt_tmp`;
+TRUNCATE TABLE `catalog_product_index_price_tmp`;
+TRUNCATE TABLE `catalog_product_index_tier_price`;
+TRUNCATE TABLE `catalog_product_index_website`;
+TRUNCATE TABLE `catalog_product_link`;
+TRUNCATE TABLE `catalog_product_link_attribute_decimal`;
+TRUNCATE TABLE `catalog_product_link_attribute_int`;
+TRUNCATE TABLE `catalog_product_link_attribute_varchar`;
+TRUNCATE TABLE `catalog_product_option`;
+TRUNCATE TABLE `catalog_product_option_price`;
+TRUNCATE TABLE `catalog_product_option_title`;
+TRUNCATE TABLE `catalog_product_option_type_price`;
+TRUNCATE TABLE `catalog_product_option_type_title`;
+TRUNCATE TABLE `catalog_product_option_type_value`;
+TRUNCATE TABLE `catalog_product_relation`;
+TRUNCATE TABLE `catalog_product_super_attribute`;
+TRUNCATE TABLE `catalog_product_super_attribute_label`;
+TRUNCATE TABLE `catalog_product_super_link`;
+TRUNCATE TABLE `catalog_product_website`;
+TRUNCATE TABLE `catalog_url_rewrite_product_category`;
+TRUNCATE TABLE `downloadable_link`;
+TRUNCATE TABLE `downloadable_link_price`;
+TRUNCATE TABLE `downloadable_link_purchased`;
+TRUNCATE TABLE `downloadable_link_purchased_item`;
+TRUNCATE TABLE `downloadable_link_title`;
+TRUNCATE TABLE `downloadable_sample`;
+TRUNCATE TABLE `downloadable_sample_title`;
+TRUNCATE TABLE `product_alert_price`;
+TRUNCATE TABLE `product_alert_stock`;
+TRUNCATE TABLE `report_compared_product_index`;
+TRUNCATE TABLE `report_viewed_product_aggregated_daily`;
+TRUNCATE TABLE `report_viewed_product_aggregated_monthly`;
+TRUNCATE TABLE `report_viewed_product_aggregated_yearly`;
+TRUNCATE TABLE `report_viewed_product_index`;
+
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+
